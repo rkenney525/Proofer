@@ -12,7 +12,6 @@ public class FactBase extends HashMap<Integer, Statable> {
 
     private Statable conclusion;
     private int index = 1;
-    
     public static final String WILDCARD = "*";
 
     /**
@@ -22,14 +21,14 @@ public class FactBase extends HashMap<Integer, Statable> {
      * @return True if e was added, false otherwise
      */
     public boolean add(Statable e) {
-        for (Statable s : this.values()) {
-            if (s.equals(e)) {
-                return false;
-            }
-        }
+	for (Statable s : this.values()) {
+	    if (s.equals(e)) {
+		return false;
+	    }
+	}
 
-        super.put(index++, e);
-        return true;
+	super.put(index++, e);
+	return true;
     }
 
     /**
@@ -39,13 +38,13 @@ public class FactBase extends HashMap<Integer, Statable> {
      * @return True if ALL members of li were entered, false otherwise
      */
     public boolean add(List<Statable> li) {
-        boolean allEntered = true;
+	boolean allEntered = true;
 
-        for (Statable s : li) {
-            allEntered &= add(s);
-        }
+	for (Statable s : li) {
+	    allEntered &= add(s);
+	}
 
-        return allEntered;
+	return allEntered;
     }
 
     /**
@@ -53,8 +52,8 @@ public class FactBase extends HashMap<Integer, Statable> {
      */
     @Override
     public void clear() {
-        super.clear();
-        index = 1;
+	super.clear();
+	index = 1;
     }
 
     /**
@@ -64,22 +63,22 @@ public class FactBase extends HashMap<Integer, Statable> {
      * @return The list of all facts with op as their main operator
      */
     public List<Statable> getByOperator(Operator op) {
-        List<Statable> ret = new ArrayList<>();
+	List<Statable> ret = new ArrayList<>();
 
-        for (Statable s : values()) {
-            if (s.getOperator() == op) {
-                ret.add(s);
-            }
-        }
+	for (Statable s : values()) {
+	    if (s.getOperator() == op) {
+		ret.add(s);
+	    }
+	}
 
-        return ret;
+	return ret;
     }
 
     /**
      * @return the conclusion
      */
     public Statable getConclusion() {
-        return conclusion;
+	return conclusion;
     }
 
     /**
@@ -87,29 +86,34 @@ public class FactBase extends HashMap<Integer, Statable> {
      *
      * @param key The key to use
      * @return The list of values
+     * @throws RuleFormatException An invalid index was received
      */
-    public List<Statable> getValues(String key) {
-        List<Statable> ret = new ArrayList<>();
+    public List<Statable> getValues(String key) throws RuleFormatException {
+	List<Statable> ret = new ArrayList<>();
 
-        // Handle the wildcard case
-        if (key.equals("*")) {
-            for (Statable s : values()) {
-                ret.add(s);
-            }
-        } else {
-            Statable value = get(Integer.parseInt(key));
-            if (value != null) {
-                ret.add(value);
-            }
-        }
+	// Handle the wildcard case
+	if (key.equals("*")) {
+	    for (Statable s : values()) {
+		ret.add(s);
+	    }
+	} else {
+	    try {
+		Statable value = get(Integer.parseInt(key));
+		if (value != null) {
+		    ret.add(value);
+		}
+	    } catch (NumberFormatException ex) {
+		throw new RuleFormatException("Rule", "Invalid statement coordinates");
+	    }
+	}
 
-        return ret;
+	return ret;
     }
 
     /**
      * @param conclusion the conclusion to set
      */
     public void setConclusion(Statable conclusion) {
-        this.conclusion = conclusion;
+	this.conclusion = conclusion;
     }
 }

@@ -15,7 +15,7 @@ public class ProoferInterface {
 
     private static final String BASE_COORDINATE_INDICATOR = "0";
     private static final String RULE_FORMAT =
-	    "[a-zA-Z]{1,4}\\([0-9\\*]+(,[0-9\\*]+){0,1}(,[0-9\\.]+){0,1}\\)";
+	    "[a-zA-Z]{1,4}\\([0-9\\*]+(,[0-9\\*]+){0,1}(,[1-2\\.]+[1-2])*\\)";
 
     private enum Mode {
 
@@ -151,10 +151,28 @@ public class ProoferInterface {
 
 			List<Statable> arg0 = fb.getValues(arguments[0]);
 			List<Statable> result;
+
 			if (arguments.length >= 2) {
-			    List<Statable> arg1 = fb.getValues(arguments[1]);
-			    result = rule.doRule(arg0, arg1,
-				    usesWildcard(arguments[0], arguments[1]));
+			    // Handle Rules of Replacement
+			    if (rule == Rule.DM
+				    || rule == Rule.COM
+				    || rule == Rule.ASSOC
+				    || rule == Rule.DIST
+				    || rule == Rule.DN
+				    || rule == Rule.TRANS
+				    || rule == Rule.IMPL
+				    || rule == Rule.EQUIV
+				    || rule == Rule.EXP
+				    || rule == Rule.TAUT) {
+				int[] coordinates = getCoordinates(rule.toString(), arguments[1]);
+				result = rule.doRule(arg0, coordinates,
+					usesWildcard(arguments[0]));
+			    } else {
+				List<Statable> arg1 = fb.getValues(arguments[1]);
+				result = rule.doRule(arg0, arg1,
+					usesWildcard(arguments[0], arguments[1]));
+			    }
+
 			} else {
 			    // Handle the special "grab out of thin air" rule
 			    if (rule == Rule.ADD) {
@@ -162,6 +180,7 @@ public class ProoferInterface {
 				Statable add = null;
 
 				// Get the Statable to add
+				System.out.println("enter the statement to add:");
 				while (add == null) {
 				    System.out.print("proofer> ");
 				    try {
@@ -208,7 +227,7 @@ public class ProoferInterface {
 	if (data.equals(BASE_COORDINATE_INDICATOR)) {
 	    return null;
 	}
-	String[] scoord = data.split(".");
+	String[] scoord = data.split("\\.");
 	int[] coordinates = new int[scoord.length];
 	for (int i = 0; i < coordinates.length; i++) {
 	    try {

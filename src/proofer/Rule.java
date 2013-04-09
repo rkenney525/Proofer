@@ -61,9 +61,9 @@ public enum Rule {
     }
 
     /**
-     * Call the Rule's appropriate function.  The implementation is clunky, but
+     * Call the Rule's appropriate function. The implementation is clunky, but
      * it works.
-     * 
+     *
      * @param arg0 The first argument(s)
      * @param arg1 The second argument(s)
      * @param silent True if no error should be reported, false otherwise
@@ -97,6 +97,25 @@ public enum Rule {
     }
 
     /**
+     * Call the Rule's appropriate function. The implementation is clunky, but
+     * it works.
+     *
+     * @param arg0 The first argument(s)
+     * @param arg1 The second argument(s)
+     * @param silent True if no error should be reported, false otherwise
+     * @return The result of the rule
+     * @throws RuleFormatException The rule cannot be applied
+     */
+    public List<Statable> doRule(List<Statable> arg0, int[] coordinates,
+	    boolean silent) throws RuleFormatException {
+	switch (this) {
+	    case DN:
+		return DoubleNegative(arg0, coordinates, silent);
+	    default:
+		return null;
+	}
+    }
+    /**
      * Single argument version of doRule(). This function simply calls the two
      * argument version with null passed as the second parameter, but is
      * included for convenience.
@@ -107,7 +126,7 @@ public enum Rule {
      */
     public List<Statable> doRule(List<Statable> arg0, boolean silent)
 	    throws RuleFormatException {
-	return doRule(arg0, null, silent);
+	return doRule(arg0, (List) null, silent);
     }
 
     /**
@@ -596,46 +615,47 @@ public enum Rule {
 
 	for (Statable arg0 : stat) {
 	    try {
-		ret.add(DoubleNegative(arg0));
+		//ret.add(DoubleNegative(arg0));
 
 
-		/*Statable copy = null;
-		 try {
-		 copy = Statement.parseString(arg0.toString());
-		 } catch (StatementParsingException ex) {
-		 System.err.println("This should never print - problem with toString()");
-		 continue;
-		 }
-		 Statable operate = copy;
-		 Statable parent;
-		 if (coordinates == null) {
-		 ret.add(DoubleNegative(arg0));
-		 continue;
-		 }
-		 try {
-		 for (int i = 0; i < coordinates.length; i++) {
-		 parent = operate;
-		 try {
-		 operate = parent.getOperands()[coordinates[i] - 1];
-		 if (i == coordinates.length - 1) {
-		 parent.getOperands()[coordinates[i] - 1] = 
-		 DoubleNegative(operate);
-		 }
-		 } catch (ArrayIndexOutOfBoundsException ex) {
-		 throw new RuleFormatException("DN", "Location too large or small");
-		 }
-		 }
-		 ret.add(copy);
-		 } catch (NullPointerException ex) {
-		 throw new RuleFormatException("DN", "Invalid location");
-		 }*/
+		Statable copy = null;
+		try {
+		    copy = Statement.parseString(arg0.toString());
+		} catch (StatementParsingException ex) {
+		    System.err.println("This should never print - problem with toString()");
+		    continue;
+		}
+		Statable operate = copy;
+		Statable parent;
+		if (coordinates == null) {
+		    ret.add(DoubleNegative(arg0));
+		    continue;
+		}
+		
+		try {
+		    for (int i = 0; i < coordinates.length; i++) {
+			parent = operate;
+			try {
+			    operate = parent.getOperands()[coordinates[i] - 1];
+			    if (i == coordinates.length - 1) {
+				parent.getOperands()[coordinates[i] - 1] =
+					DoubleNegative(operate);
+			    }
+			} catch (ArrayIndexOutOfBoundsException ex) {
+			    throw new RuleFormatException("DN", "Location too large or small");
+			}
+		    }
+		    ret.add(copy);
+		} catch (NullPointerException ex) {
+		    throw new RuleFormatException("DN", "Invalid location");
+		}
 	    } catch (RuleFormatException ex) {
 		if (!silent) {
 		    throw ex;
 		}
 	    }
 	}
-
+	
 	return ret;
     }
 }
